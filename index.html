@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Solana Persona Analyzer</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <div class="header">
+            <h1>🔮 Solana Persona Analyzer</h1>
+            <p>Connect your wallet to discover your unique Solana trading personality</p>
+        </div>
+
+        <div class="main-card">
+            <div class="card-header">
+                <h2>Connect Your Solana Wallet</h2>
+                <p>Safe and secure - we only read your public transaction history</p>
+            </div>
+
+            <div class="card-content">
+                <div class="demo-toggle">
+                    <input type="checkbox" id="demoMode" class="demo-checkbox" onchange="app.toggleDemoMode()">
+                    <label for="demoMode" class="demo-label">🎮 Demo Mode (use simulated data)</label>
+                </div>
+
+                <div class="wallet-section">
+                    <div class="wallet-status" id="walletStatus">
+                        <div class="wallet-disconnected" id="walletDisconnected">
+                            <div class="wallet-icon">🔗</div>
+                            <h3>No Wallet Connected</h3>
+                            <p style="margin: 16px 0; color: #666;">Connect your Solana wallet to analyze your on-chain activity</p>
+                            
+                            <div class="wallet-grid">
+                                <div class="wallet-option" onclick="wallet.connectPhantom()">
+                                    <div style="font-size: 40px; margin-bottom: 12px;">👻</div>
+                                    <div class="wallet-option-name">Phantom</div>
+                                </div>
+                                
+                                <div class="wallet-option" onclick="wallet.connectSolflare()">
+                                    <div style="font-size: 40px; margin-bottom: 12px;">☀️</div>
+                                    <div class="wallet-option-name">Solflare</div>
+                                </div>
+                                
+                                <div class="wallet-option" onclick="wallet.connectBackpack()">
+                                    <div style="font-size: 40px; margin-bottom: 12px;">🎒</div>
+                                    <div class="wallet-option-name">Backpack</div>
+                                </div>
+
+                                <div class="wallet-option" onclick="wallet.connectManual()">
+                                    <div style="font-size: 40px; margin-bottom: 12px;">✏️</div>
+                                    <div class="wallet-option-name">Manual Entry</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="wallet-connected" id="walletConnected" style="display: none;">
+                            <div class="wallet-icon">✅</div>
+                            <h3>Wallet Connected</h3>
+                            <div class="wallet-address" id="walletAddress"></div>
+                            <button class="disconnect-btn" onclick="wallet.disconnect()">Disconnect</button>
+                            <br>
+                            <button class="analyze-btn" onclick="app.analyzeWallet()">
+                                🚀 Analyze My Persona
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="progress-bar" id="progressBar" style="display: none;">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+
+                <div class="loading-section" id="loadingSection">
+                    <div class="loading-spinner"></div>
+                    <div class="loading-text" id="loadingText">Analyzing your Solana activity...</div>
+                    <div class="loading-detail" id="loadingDetail">Connecting to wallet...</div>
+                </div>
+
+                <div class="error-section" id="errorSection">
+                    <div style="font-weight: 600; margin-bottom: 8px;">Connection Failed</div>
+                    <div id="errorMessage"></div>
+                </div>
+
+                <div class="results-section" id="resultsSection">
+                    <div class="persona-card" id="personaCard">
+                        <div class="persona-icon" id="personaIcon"></div>
+                        <div class="persona-title" id="personaTitle"></div>
+                        <div class="persona-description" id="personaDescription"></div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon">📊</div>
+                                <div class="stat-label">Total Transactions</div>
+                            </div>
+                            <div class="stat-value" id="totalTxs">0</div>
+                            <div class="stat-detail">Since account creation</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon">🎨</div>
+                                <div class="stat-label">NFT Activity</div>
+                            </div>
+                            <div class="stat-value" id="nftCount">0</div>
+                            <div class="stat-detail">Estimated holdings</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon">🚀</div>
+                                <div class="stat-label">Memecoin Trades</div>
+                            </div>
+                            <div class="stat-value" id="memecoinTrades">0</div>
+                            <div class="stat-detail">High-risk transactions</div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <div class="stat-icon">🏗️</div>
+                                <div class="stat-label">DeFi Interactions</div>
+                            </div>
+                            <div class="stat-value" id="defiCount">0</div>
+                            <div class="stat-detail">Protocol interactions</div>
+                        </div>
+                    </div>
+
+                    <div class="share-section">
+                        <h3 style="margin-bottom: 20px;">Share Your Results</h3>
+                        <button class="share-btn" onclick="app.shareOnTwitter()">🐦 Share on Twitter</button>
+                        <button class="share-btn farcaster" onclick="app.shareOnFarcaster()">🟣 Share on Farcaster</button>
+                        <button class="share-btn" onclick="app.copyResults()" style="background: #6c757d;">📋 Copy Results</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Manual wallet entry modal -->
+    <div id="manualModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: 16px; max-width: 500px; margin: 20px;">
+            <h3 style="margin-bottom: 20px;">Enter Wallet Address</h3>
+            <input type="text" id="manualWalletInput" placeholder="Enter Solana wallet address..." style="width: 100%; padding: 12px; border: 2px solid #e1e5e9; border-radius: 8px; margin-bottom: 20px;">
+            <div style="text-align: right;">
+                <button onclick="wallet.closeManualModal()" style="padding: 10px 20px; margin-right: 10px; background: #6c757d; color: white; border: none; border-radius: 6px; cursor: pointer;">Cancel</button>
+                <button onclick="wallet.connectManualWallet()" style="padding: 10px 20px; background: #9945ff; color: white; border: none; border-radius: 6px; cursor: pointer;">Connect</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load JavaScript modules -->
+    <script src="js/config.js"></script>
+    <script src="js/personas.js"></script>
+    <script src="js/metaplex-nft.js"></script>
+    <script src="js/helius-analysis.js"></script>
+    <script src="js/wallet.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
