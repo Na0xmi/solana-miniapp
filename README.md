@@ -1,1 +1,1 @@
-A mini app that tells you whcih philosopher you are based on your Solana wallet history. 
+A mini app that tells you which philosopher you are based on your Solana wallet history. 
