@@ -1,0 +1,13 @@
+{
+  "name": "solana-philosopher",
+  "version": "1.0.0",
+  "description": "Which philosopher am I based on Solana trading activity",
+  "main": "index.html",
+  "scripts": {
+    "start": "serve .",
+    "build": "echo 'No build step required'"
+  },
+  "keywords": ["solana", "philosophy", "crypto", "dapp"],
+  "author": "Your Name",
+  "license": "MIT"
+}
