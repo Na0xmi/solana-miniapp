@@ -10,8 +10,8 @@
 <body>
     <div class="app-container">
         <div class="header">
-            <h1>🔮 Solana Persona Analyzer</h1>
-            <p>Connect your wallet to discover your unique Solana trading personality</p>
+            <h1>🔮 Which philosopher are you?</h1>
+            <p>Based on your Solana track record</p>
         </div>
 
         <div class="main-card">
@@ -26,7 +26,7 @@
                     <label for="demoMode" class="demo-label">🎮 Demo Mode (use simulated data)</label>
                 </div>
 
-                <div class="wallet-section">
+                <div class="wallet-section" id="walletSection">
                     <div class="wallet-status" id="walletStatus">
                         <div class="wallet-disconnected" id="walletDisconnected">
                             <div class="wallet-icon">🔗</div>
@@ -63,7 +63,7 @@
                             <button class="disconnect-btn" onclick="wallet.disconnect()">Disconnect</button>
                             <br>
                             <button class="analyze-btn" onclick="app.analyzeWallet()">
-                                🚀 Analyze My Persona
+                                Ponder...
                             </button>
                         </div>
                     </div>
@@ -86,8 +86,10 @@
 
                 <div class="results-section" id="resultsSection">
                     <div class="persona-card" id="personaCard">
-                        <div class="persona-icon" id="personaIcon"></div>
                         <div class="persona-title" id="personaTitle"></div>
+                        <div class="persona-image" id="personaImage">
+                            <span>Philosopher Portrait<br>Coming Soon</span>
+                        </div>
                         <div class="persona-description" id="personaDescription"></div>
                     </div>
 

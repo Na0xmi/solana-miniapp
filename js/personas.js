@@ -6,7 +6,7 @@ const PERSONAS = {
         description: "You reject all material possessions and live with absolute minimalism. Your wallet contains virtually nothing because you believe true wealth comes from wanting less, not having more. You are the purest form of hodler.",
         gradient: "linear-gradient(135deg, #8B4513 0%, #DEB887 100%)", // Earth tones
         traits: ["Minimalist", "Ascetic", "Anti-materialist", "Pure"],
-        imageUrl: "https://via.placeholder.com/400x300/8B4513/FFFFFF?text=Diogenes+🏺", // Replace with actual image
+        imageUrl: "images/personas/diogenes.png", 
         philosophy: "\"I am looking for an honest coin.\" - Rejects all DeFi complexity for pure hodling."
     },
     schopenhauer: {
@@ -15,7 +15,7 @@ const PERSONAS = {
         description: "You hate everything about crypto and DeFi, yet here you are, trapped in this miserable cycle of financial speculation. Every transaction fills you with existential dread, but you continue because suffering is the human condition.",
         gradient: "linear-gradient(135deg, #2C3E50 0%, #34495E 100%)", // Dark grays
         traits: ["Pessimistic", "Suffering", "Reluctant participant", "Doomed"],
-        imageUrl: "https://via.placeholder.com/400x300/2C3E50/FFFFFF?text=Schopenhauer+😤", // Replace with actual image
+        imageUrl: "images/personas/schopenhauer.png", 
         philosophy: "\"All trading is suffering.\" - Continues trading despite knowing it will only bring pain."
     },
     camus: {
@@ -24,7 +24,7 @@ const PERSONAS = {
         description: "You embrace the fundamental absurdity of throwing money at cartoon dogs and magic internet money. Life has no meaning, so why not buy $BONK and $WIF? You find joy in the meaningless chaos of memecoin degeneracy.",
         gradient: "linear-gradient(135deg, #E74C3C 0%, #F39C12 100%)", // Vibrant chaos
         traits: ["Absurdist", "Degen", "Embraces chaos", "Memecoin enthusiast"],
-        imageUrl: "https://via.placeholder.com/400x300/E74C3C/FFFFFF?text=Camus+🎭", // Replace with actual image
+        imageUrl: "images/personas/camus.png", 
         philosophy: "\"One must imagine $BONK holders happy.\" - Finds meaning in meaningless memecoins."
     },
     marx: {
@@ -33,7 +33,7 @@ const PERSONAS = {
         description: "You understand the means of production but are absolutely terrible with money. Your portfolio is a study in how someone can analyze capitalism brilliantly yet lose everything to bad DeFi trades. The revolution will be decentralized!",
         gradient: "linear-gradient(135deg, #C0392B 0%, #E74C3C 100%)", // Revolutionary red
         traits: ["Anti-capitalist", "Bad with money", "DeFi victim", "Revolutionary"],
-        imageUrl: "https://via.placeholder.com/400x300/C0392B/FFFFFF?text=Marx+☭", // Replace with actual image
+        imageUrl: "images/personas/marx.png",
         philosophy: "\"The philosophers have only interpreted the markets; the point is to change them... and lose money doing it.\""
     },
     nietzsche: {
@@ -42,7 +42,7 @@ const PERSONAS = {
         description: "You have transcended traditional financial wisdom and created your own values. God is dead, and you killed him with leverage trading. You are building the future of finance through pure will to power and NFT collections.",
         gradient: "linear-gradient(135deg, #8E44AD 0%, #3498DB 100%)", // Bold purple to blue
         traits: ["Übermensch", "Value creator", "Transcendent", "Builder"],
-        imageUrl: "https://via.placeholder.com/400x300/8E44AD/FFFFFF?text=Nietzsche+⚡", // Replace with actual image
+        imageUrl: "images/personas/nietzsche.png", // Replace with actual image
         philosophy: "\"What does not destroy my portfolio, makes it stronger.\" - Creates new financial paradigms."
     }
 };

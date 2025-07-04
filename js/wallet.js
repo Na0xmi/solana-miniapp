@@ -24,7 +24,7 @@ class WalletManager {
 
     async connectPhantom() {
         if (this.isDemoMode) {
-            this.simulateConnection('phantom', DEMO_WALLETS.novice);
+            this.simulateConnection('phantom', DEMO_WALLETS.diogenes);
             return;
         }
 
@@ -47,7 +47,7 @@ class WalletManager {
 
     async connectSolflare() {
         if (this.isDemoMode) {
-            this.simulateConnection('solflare', DEMO_WALLETS.artficionado);
+            this.simulateConnection('solflare', DEMO_WALLETS.nietzsche);
             return;
         }
 
@@ -70,7 +70,7 @@ class WalletManager {
 
     async connectBackpack() {
         if (this.isDemoMode) {
-            this.simulateConnection('backpack', DEMO_WALLETS.builder);
+            this.simulateConnection('backpack', DEMO_WALLETS.camus);
             return;
         }
 
@@ -129,6 +129,9 @@ class WalletManager {
         // Clear any previous results
         document.getElementById('resultsSection').style.display = 'none';
         document.getElementById('errorSection').style.display = 'none';
+        
+        // Make sure wallet section is visible
+        document.getElementById('walletSection').style.display = 'block';
     }
 
     disconnect() {
@@ -138,6 +141,10 @@ class WalletManager {
         document.getElementById('walletConnected').style.display = 'none';
         document.getElementById('resultsSection').style.display = 'none';
         document.getElementById('errorSection').style.display = 'none';
+        
+        // Show wallet section and card header again when disconnecting
+        document.getElementById('walletSection').style.display = 'block';
+        document.querySelector('.card-header').style.display = 'block';
     }
 
     isValidSolanaAddress(address) {
@@ -157,4 +164,4 @@ class WalletManager {
 }
 
 // Create global wallet instance
-const wallet = new WalletManager();
+window.wallet = new WalletManager();

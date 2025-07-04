@@ -202,16 +202,30 @@ class SolanaPersonaApp {
         const persona = PERSONAS[results.persona];
         
         // Update persona card
-        document.getElementById('personaIcon').textContent = persona.icon;
-        document.getElementById('personaTitle').textContent = persona.title;
+        const titleElement = document.getElementById('personaTitle');
+        titleElement.textContent = persona.title;
+        titleElement.setAttribute('data-icon', persona.icon);
+        
         document.getElementById('personaDescription').textContent = persona.description;
         document.getElementById('personaCard').style.background = persona.gradient;
+        
+        // Update persona image placeholder (ready for future images)
+        const personaImageElement = document.getElementById('personaImage');
+        if (persona.imageUrl) {
+            personaImageElement.innerHTML = `<img src="${persona.imageUrl}" alt="${persona.title}" />`;
+        } else {
+            personaImageElement.innerHTML = '<span>Philosopher Portrait<br>Coming Soon</span>';
+        }
         
         // Update stats
         document.getElementById('totalTxs').textContent = results.totalTxs.toLocaleString();
         document.getElementById('nftCount').textContent = results.nftCount.toLocaleString();
         document.getElementById('memecoinTrades').textContent = results.memecoinTrades.toLocaleString();
         document.getElementById('defiCount').textContent = results.defiCount.toLocaleString();
+        
+        // Hide the wallet section and card header when results are displayed
+        document.getElementById('walletSection').style.display = 'none';
+        document.querySelector('.card-header').style.display = 'none';
         
         // Show results
         document.getElementById('resultsSection').style.display = 'block';
