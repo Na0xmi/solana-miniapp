@@ -1,35 +1,39 @@
-// Philosopher-based Solana personas with images - much more fun!
+// Philosopher-based Solana personas with real quotes
 const PERSONAS = {
     diogenes: {
         icon: "🏺",
         title: "Diogenes the Cynic",
+        quote: "The foundation of every state is the education of its youth.",
         description: "You reject all material possessions and live with absolute minimalism. Your wallet contains virtually nothing because you believe true wealth comes from wanting less, not having more. You are the purest form of hodler.",
         gradient: "linear-gradient(135deg, #8B4513 0%, #DEB887 100%)", // Earth tones
         traits: ["Minimalist", "Ascetic", "Anti-materialist", "Pure"],
-        imageUrl: "images/personas/diogenes.png", 
+        imageUrl: "images/personas/diogenes.png",
         philosophy: "\"I am looking for an honest coin.\" - Rejects all DeFi complexity for pure hodling."
     },
     schopenhauer: {
         icon: "😤", 
         title: "Schopenhauer the Pessimist",
+        quote: "All satisfaction, or what is commonly called happiness, is really and essentially always negative only, and never positive.",
         description: "You hate everything about crypto and DeFi, yet here you are, trapped in this miserable cycle of financial speculation. Every transaction fills you with existential dread, but you continue because suffering is the human condition.",
         gradient: "linear-gradient(135deg, #2C3E50 0%, #34495E 100%)", // Dark grays
         traits: ["Pessimistic", "Suffering", "Reluctant participant", "Doomed"],
-        imageUrl: "images/personas/schopenhauer.png", 
+        imageUrl: "images/personas/schopenhauer.png",
         philosophy: "\"All trading is suffering.\" - Continues trading despite knowing it will only bring pain."
     },
     camus: {
         icon: "🎭",
         title: "Camus the Absurdist", 
+        quote: "The struggle itself toward the heights is enough to fill a man's heart.",
         description: "You embrace the fundamental absurdity of throwing money at cartoon dogs and magic internet money. Life has no meaning, so why not buy $BONK and $WIF? You find joy in the meaningless chaos of memecoin degeneracy.",
         gradient: "linear-gradient(135deg, #E74C3C 0%, #F39C12 100%)", // Vibrant chaos
         traits: ["Absurdist", "Degen", "Embraces chaos", "Memecoin enthusiast"],
-        imageUrl: "images/personas/camus.png", 
+        imageUrl: "images/personas/camus.png",
         philosophy: "\"One must imagine $BONK holders happy.\" - Finds meaning in meaningless memecoins."
     },
     marx: {
         icon: "☭",
         title: "Marx the Revolutionary",
+        quote: "The philosophers have only interpreted the world in various ways; the point is to change it.",
         description: "You understand the means of production but are absolutely terrible with money. Your portfolio is a study in how someone can analyze capitalism brilliantly yet lose everything to bad DeFi trades. The revolution will be decentralized!",
         gradient: "linear-gradient(135deg, #C0392B 0%, #E74C3C 100%)", // Revolutionary red
         traits: ["Anti-capitalist", "Bad with money", "DeFi victim", "Revolutionary"],
@@ -39,13 +43,84 @@ const PERSONAS = {
     nietzsche: {
         icon: "⚡",
         title: "Nietzsche the Übermensch",
+        quote: "He who does not have two-thirds of his day for himself, is a slave, whatever he may be: a statesman, a businessman, an official, or a scholar.",
         description: "You have transcended traditional financial wisdom and created your own values. God is dead, and you killed him with leverage trading. You are building the future of finance through pure will to power and NFT collections.",
         gradient: "linear-gradient(135deg, #8E44AD 0%, #3498DB 100%)", // Bold purple to blue
         traits: ["Übermensch", "Value creator", "Transcendent", "Builder"],
-        imageUrl: "images/personas/nietzsche.png", // Replace with actual image
+        imageUrl: "images/personas/nietzsche.png",
         philosophy: "\"What does not destroy my portfolio, makes it stronger.\" - Creates new financial paradigms."
     }
 };
+
+// Generate demo data based on philosopher type - DEFINED HERE
+function generatePersonaData(personaType) {
+    const baseData = {
+        diogenes: { 
+            totalTxs: 0, 
+            nftCount: 0, 
+            memecoinTrades: 0, 
+            defiCount: 0, 
+            totalVolume: 0, 
+            uniquePrograms: 0, 
+            accountAge: 365,
+            isVirgin: true
+        },
+        schopenhauer: { 
+            totalTxs: 75, 
+            nftCount: 2, 
+            memecoinTrades: 8, 
+            defiCount: 3, 
+            totalVolume: 200, 
+            uniquePrograms: 6, 
+            accountAge: 180
+        },
+        camus: { 
+            totalTxs: 420,
+            nftCount: 12, 
+            memecoinTrades: 69,
+            defiCount: 8, 
+            totalVolume: 1337,
+            uniquePrograms: 15, 
+            accountAge: 90
+        },
+        marx: { 
+            totalTxs: 350, 
+            nftCount: 5, 
+            memecoinTrades: 25, 
+            defiCount: 45,
+            totalVolume: 15000,
+            uniquePrograms: 25, 
+            accountAge: 240
+        },
+        nietzsche: { 
+            totalTxs: 200, 
+            nftCount: 35,
+            memecoinTrades: 15, 
+            defiCount: 20, 
+            totalVolume: 5000, 
+            uniquePrograms: 30,
+            accountAge: 300
+        }
+    };
+    
+    return baseData[personaType] || baseData.schopenhauer;
+}
+
+// Generate random but realistic data for testing - DEFINED HERE
+function generateRandomData(walletAddress) {
+    const seed = walletAddress.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+    const random = (seed * 9301 + 49297) % 233280 / 233280;
+
+    return {
+        totalTxs: Math.floor(random * 500) + 1,
+        nftCount: Math.floor(random * 50),
+        memecoinTrades: Math.floor(random * 100),
+        defiCount: Math.floor(random * 40),
+        totalVolume: Math.round(random * 10000 * 100) / 100,
+        uniquePrograms: Math.floor(random * 25) + 5,
+        accountAge: Math.floor(random * 365) + 30
+    };
+}
 
 // Performance analysis for better persona detection
 class PerformanceAnalyzer {
@@ -72,7 +147,7 @@ class PerformanceAnalyzer {
                 performance.totalTrades = this.countTradingTransactions(transactionData);
                 
                 // Estimate win/loss ratio from trading patterns
-                const tradingAnalysis = this.analyzeTrading (transactionData);
+                const tradingAnalysis = this.analyzeTrading(transactionData);
                 performance.winningTrades = tradingAnalysis.estimatedWins;
                 performance.losingTrades = tradingAnalysis.estimatedLosses;
                 performance.winRate = performance.totalTrades > 0 ? 
@@ -111,7 +186,7 @@ class PerformanceAnalyzer {
         ).length;
     }
 
-    analyzeTradingPatterns(transactions) {
+    analyzeTrading(transactions) {
         let estimatedWins = 0;
         let estimatedLosses = 0;
         let quickTrades = 0;
@@ -267,82 +342,3 @@ function determinePersona(stats) {
 
 // Create global performance analyzer
 const performanceAnalyzer = new PerformanceAnalyzer();
-
-// Demo wallet addresses for testing different personas
-const DEMO_WALLETS = {
-    diogenes: "Demo-Diogenes-Address-111111111111111",
-    schopenhauer: "Demo-Schopenhauer-Address-222222222222", 
-    camus: "Demo-Camus-Address-333333333333333",
-    marx: "Demo-Marx-Address-444444444444444",
-    nietzsche: "Demo-Nietzsche-Address-555555555555555"
-};
-
-// Generate demo data based on philosopher type
-function generatePersonaData(personaType) {
-    const baseData = {
-        diogenes: { 
-            totalTxs: 0, 
-            nftCount: 0, 
-            memecoinTrades: 0, 
-            defiCount: 0, 
-            totalVolume: 0, 
-            uniquePrograms: 0, 
-            accountAge: 365,
-            isVirgin: true
-        },
-        schopenhauer: { 
-            totalTxs: 75, 
-            nftCount: 2, 
-            memecoinTrades: 8, 
-            defiCount: 3, 
-            totalVolume: 200, 
-            uniquePrograms: 6, 
-            accountAge: 180
-        },
-        camus: { 
-            totalTxs: 420,
-            nftCount: 12, 
-            memecoinTrades: 69,
-            defiCount: 8, 
-            totalVolume: 1337,
-            uniquePrograms: 15, 
-            accountAge: 90
-        },
-        marx: { 
-            totalTxs: 350, 
-            nftCount: 5, 
-            memecoinTrades: 25, 
-            defiCount: 45,
-            totalVolume: 15000,
-            uniquePrograms: 25, 
-            accountAge: 240
-        },
-        nietzsche: { 
-            totalTxs: 200, 
-            nftCount: 35,
-            memecoinTrades: 15, 
-            defiCount: 20, 
-            totalVolume: 5000, 
-            uniquePrograms: 30,
-            accountAge: 300
-        }
-    };
-    
-    return baseData[personaType] || baseData.schopenhauer;
-}
-
-// Generate random but realistic data for testing
-function generateRandomData(walletAddress) {
-    const seed = walletAddress.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
-    const random = (seed * 9301 + 49297) % 233280 / 233280;
-
-    return {
-        totalTxs: Math.floor(random * 500) + 1,
-        nftCount: Math.floor(random * 50),
-        memecoinTrades: Math.floor(random * 100),
-        defiCount: Math.floor(random * 40),
-        totalVolume: Math.round(random * 10000 * 100) / 100,
-        uniquePrograms: Math.floor(random * 25) + 5,
-        accountAge: Math.floor(random * 365) + 30
-    };
-}

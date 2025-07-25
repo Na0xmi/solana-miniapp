@@ -10,8 +10,8 @@
 <body>
     <div class="app-container">
         <div class="header">
-            <h1>🔮 Which philosopher are you?</h1>
-            <p>Based on your Solana track record</p>
+            <h1>Which philosopher am I?</h1>
+            <p>Based on your Solana trading activity</p>
         </div>
 
         <div class="main-card">
@@ -23,53 +23,119 @@
             <div class="card-content">
                 <div class="demo-toggle">
                     <input type="checkbox" id="demoMode" class="demo-checkbox" onchange="app.toggleDemoMode()">
-                    <label for="demoMode" class="demo-label">🎮 Demo Mode (use simulated data)</label>
+                    <label for="demoMode" class="demo-label">Demo Mode (use simulated data)</label>
                 </div>
 
-                <div class="wallet-section" id="walletSection">
-                    <div class="wallet-status" id="walletStatus">
-                        <div class="wallet-disconnected" id="walletDisconnected">
-                            <div class="wallet-icon">🔗</div>
-                            <h3>No Wallet Connected</h3>
-                            <p style="margin: 16px 0; color: #666;">Connect your Solana wallet to analyze your on-chain activity</p>
-                            
-                            <div class="wallet-grid">
-                                <div class="wallet-option" onclick="wallet.connectPhantom()">
-                                    <div style="font-size: 40px; margin-bottom: 12px;">👻</div>
-                                    <div class="wallet-option-name">Phantom</div>
-                                </div>
+                <!-- Wallet Section and Results Section in the same container -->
+                <div class="main-content-area">
+                    <div class="wallet-section" id="walletSection">
+                        <div class="wallet-status" id="walletStatus">
+                            <div class="wallet-disconnected" id="walletDisconnected">
+                                <div class="wallet-icon">Connect</div>
+                                <h3>No Wallet Connected</h3>
+                                <p style="margin: 16px 0; color: #666;">Connect your Solana wallet to analyze your on-chain activity</p>
                                 
-                                <div class="wallet-option" onclick="wallet.connectSolflare()">
-                                    <div style="font-size: 40px; margin-bottom: 12px;">☀️</div>
-                                    <div class="wallet-option-name">Solflare</div>
-                                </div>
-                                
-                                <div class="wallet-option" onclick="wallet.connectBackpack()">
-                                    <div style="font-size: 40px; margin-bottom: 12px;">🎒</div>
-                                    <div class="wallet-option-name">Backpack</div>
-                                </div>
+                                <div class="wallet-grid">
+                                    <div class="wallet-option" onclick="wallet.connectPhantom()">
+                                        <div style="font-size: 40px; margin-bottom: 12px;">👻</div>
+                                        <div class="wallet-option-name">Phantom</div>
+                                    </div>
+                                    
+                                    <div class="wallet-option" onclick="wallet.connectSolflare()">
+                                        <div style="font-size: 40px; margin-bottom: 12px;">☀️</div>
+                                        <div class="wallet-option-name">Solflare</div>
+                                    </div>
+                                    
+                                    <div class="wallet-option" onclick="wallet.connectBackpack()">
+                                        <div style="font-size: 40px; margin-bottom: 12px;">🎒</div>
+                                        <div class="wallet-option-name">Backpack</div>
+                                    </div>
 
-                                <div class="wallet-option" onclick="wallet.connectManual()">
-                                    <div style="font-size: 40px; margin-bottom: 12px;">✏️</div>
-                                    <div class="wallet-option-name">Manual Entry</div>
+                                    <div class="wallet-option" onclick="wallet.connectManual()">
+                                        <div style="font-size: 40px; margin-bottom: 12px;">✏️</div>
+                                        <div class="wallet-option-name">Manual Entry</div>
+                                    </div>
                                 </div>
+                            </div>
+
+                            <div class="wallet-connected" id="walletConnected" style="display: none;">
+                                <div class="wallet-icon">Connected</div>
+                                <h3>Wallet Connected</h3>
+                                <div class="wallet-address" id="walletAddress"></div>
+                                <button class="disconnect-btn" onclick="wallet.disconnect()">Disconnect</button>
+                                <br>
+                                <button class="analyze-btn" onclick="app.analyzeWallet()">
+                                    Analyze My Persona
+                                </button>
                             </div>
                         </div>
 
-                        <div class="wallet-connected" id="walletConnected" style="display: none;">
-                            <div class="wallet-icon">✅</div>
-                            <h3>Wallet Connected</h3>
-                            <div class="wallet-address" id="walletAddress"></div>
-                            <button class="disconnect-btn" onclick="wallet.disconnect()">Disconnect</button>
-                            <br>
-                            <button class="analyze-btn" onclick="app.analyzeWallet()">
-                                Ponder...
-                            </button>
+                        <div class="progress-bar" id="progressBar" style="display: none;">
+                            <div class="progress-fill" id="progressFill"></div>
                         </div>
                     </div>
 
-                    <div class="progress-bar" id="progressBar" style="display: none;">
-                        <div class="progress-fill" id="progressFill"></div>
+                    <!-- Results appear in the same space -->
+                    <div class="results-section" id="resultsSection" style="display: none;">
+                        <div class="persona-card" id="personaCard">
+                            <div class="persona-title" id="personaTitle"></div>
+                            <div class="persona-image" id="personaImage">
+                                <span>Philosopher Portrait<br>Coming Soon</span>
+                            </div>
+                            <div class="persona-quote" id="personaQuote"></div>
+                            <div class="persona-description" id="personaDescription"></div>
+                        </div>
+
+                        <div class="stats-grid">
+                            <div class="stat-card">
+                                <div class="stat-header">
+                                    <div class="stat-icon">Stats</div>
+                                    <div class="stat-label">Total Transactions</div>
+                                </div>
+                                <div class="stat-value" id="totalTxs">0</div>
+                                <div class="stat-detail">Since account creation</div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-header">
+                                    <div class="stat-icon">Art</div>
+                                    <div class="stat-label">NFT Activity</div>
+                                </div>
+                                <div class="stat-value" id="nftCount">0</div>
+                                <div class="stat-detail">Estimated holdings</div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-header">
+                                    <div class="stat-icon">Risk</div>
+                                    <div class="stat-label">Memecoin Trades</div>
+                                </div>
+                                <div class="stat-value" id="memecoinTrades">0</div>
+                                <div class="stat-detail">High-risk transactions</div>
+                            </div>
+
+                            <div class="stat-card">
+                                <div class="stat-header">
+                                    <div class="stat-icon">DeFi</div>
+                                    <div class="stat-label">DeFi Interactions</div>
+                                </div>
+                                <div class="stat-value" id="defiCount">0</div>
+                                <div class="stat-detail">Protocol interactions</div>
+                            </div>
+                        </div>
+
+                        <div class="share-section">
+                            <h3 style="margin-bottom: 20px;">Share Your Results</h3>
+                            <button class="share-btn" onclick="app.shareOnTwitter()">Share on Twitter</button>
+                            <button class="share-btn farcaster" onclick="app.shareOnFarcaster()">Share on Farcaster</button>
+                            <button class="share-btn" onclick="app.copyResults()" style="background: #6c757d;">Copy Results</button>
+                        </div>
+
+                        <div style="text-align: center; margin-top: 30px; padding-top: 20px; border-top: 1px solid rgba(0,0,0,0.1);">
+                            <button class="share-btn" onclick="app.checkAnotherWallet()">
+                                Check Another Wallet
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -82,61 +148,6 @@
                 <div class="error-section" id="errorSection">
                     <div style="font-weight: 600; margin-bottom: 8px;">Connection Failed</div>
                     <div id="errorMessage"></div>
-                </div>
-
-                <div class="results-section" id="resultsSection">
-                    <div class="persona-card" id="personaCard">
-                        <div class="persona-title" id="personaTitle"></div>
-                        <div class="persona-image" id="personaImage">
-                            <span>Philosopher Portrait<br>Coming Soon</span>
-                        </div>
-                        <div class="persona-description" id="personaDescription"></div>
-                    </div>
-
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <div class="stat-icon">📊</div>
-                                <div class="stat-label">Total Transactions</div>
-                            </div>
-                            <div class="stat-value" id="totalTxs">0</div>
-                            <div class="stat-detail">Since account creation</div>
-                        </div>
-
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <div class="stat-icon">🎨</div>
-                                <div class="stat-label">NFT Activity</div>
-                            </div>
-                            <div class="stat-value" id="nftCount">0</div>
-                            <div class="stat-detail">Estimated holdings</div>
-                        </div>
-
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <div class="stat-icon">🚀</div>
-                                <div class="stat-label">Memecoin Trades</div>
-                            </div>
-                            <div class="stat-value" id="memecoinTrades">0</div>
-                            <div class="stat-detail">High-risk transactions</div>
-                        </div>
-
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <div class="stat-icon">🏗️</div>
-                                <div class="stat-label">DeFi Interactions</div>
-                            </div>
-                            <div class="stat-value" id="defiCount">0</div>
-                            <div class="stat-detail">Protocol interactions</div>
-                        </div>
-                    </div>
-
-                    <div class="share-section">
-                        <h3 style="margin-bottom: 20px;">Share Your Results</h3>
-                        <button class="share-btn" onclick="app.shareOnTwitter()">🐦 Share on Twitter</button>
-                        <button class="share-btn farcaster" onclick="app.shareOnFarcaster()">🟣 Share on Farcaster</button>
-                        <button class="share-btn" onclick="app.copyResults()" style="background: #6c757d;">📋 Copy Results</button>
-                    </div>
                 </div>
             </div>
         </div>
@@ -154,7 +165,7 @@
         </div>
     </div>
 
-    <!-- Load JavaScript modules -->
+    <!-- Load JavaScript modules in correct order -->
     <script src="js/config.js"></script>
     <script src="js/personas.js"></script>
     <script src="js/metaplex-nft.js"></script>

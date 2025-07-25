@@ -90,7 +90,7 @@ class SolanaPersonaApp {
 
     generateDemoData(walletAddress) {
         // Check if it's a specific demo wallet
-        const demoTypes = Object.keys(DEMO_WALLETS);
+        const demoTypes = ['diogenes', 'schopenhauer', 'camus', 'marx', 'nietzsche'];
         for (const type of demoTypes) {
             if (walletAddress.includes(type.charAt(0).toUpperCase() + type.slice(1))) {
                 return generatePersonaData(type);
@@ -206,6 +206,7 @@ class SolanaPersonaApp {
         titleElement.textContent = persona.title;
         titleElement.setAttribute('data-icon', persona.icon);
         
+        document.getElementById('personaQuote').textContent = persona.quote;
         document.getElementById('personaDescription').textContent = persona.description;
         document.getElementById('personaCard').style.background = persona.gradient;
         
@@ -223,13 +224,12 @@ class SolanaPersonaApp {
         document.getElementById('memecoinTrades').textContent = results.memecoinTrades.toLocaleString();
         document.getElementById('defiCount').textContent = results.defiCount.toLocaleString();
         
-        // Hide the wallet section and card header when results are displayed
+        // Hide the wallet section and card header, show results in same space
         document.getElementById('walletSection').style.display = 'none';
         document.querySelector('.card-header').style.display = 'none';
-        
-        // Show results
         document.getElementById('resultsSection').style.display = 'block';
-        document.getElementById('resultsSection').scrollIntoView({ behavior: 'smooth' });
+        
+        // No scrolling needed - results appear exactly where wallet connection was
     }
 
     // UI Helper Methods
@@ -320,6 +320,31 @@ class SolanaPersonaApp {
         }).catch(err => {
             console.error('Failed to copy:', err);
         });
+    }
+
+    checkAnotherWallet() {
+        // Reset the analysis results
+        this.analysisResults = null;
+        
+        // Show the wallet section and card header again
+        document.getElementById('walletSection').style.display = 'block';
+        document.querySelector('.card-header').style.display = 'block';
+        
+        // Hide results section
+        document.getElementById('resultsSection').style.display = 'none';
+        
+        // Reset any previous errors or loading states
+        document.getElementById('errorSection').style.display = 'none';
+        document.getElementById('loadingSection').style.display = 'none';
+        document.getElementById('progressBar').style.display = 'none';
+        
+        // Disconnect current wallet if connected
+        if (window.wallet) {
+            window.wallet.disconnect();
+        }
+        
+        // Smooth scroll to the top for better UX
+        window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 }
 

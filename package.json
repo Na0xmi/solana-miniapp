@@ -7,7 +7,15 @@
     "start": "serve .",
     "build": "echo 'No build step required'"
   },
-  "keywords": ["solana", "philosophy", "crypto", "dapp"],
+  "keywords": [
+    "solana",
+    "philosophy",
+    "crypto",
+    "dapp"
+  ],
   "author": "Your Name",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.4"
+  }
 }

@@ -24,12 +24,14 @@ class WalletManager {
 
     async connectPhantom() {
         if (this.isDemoMode) {
-            this.simulateConnection('phantom', DEMO_WALLETS.diogenes);
+            this.simulateConnection('phantom', 'Demo-Diogenes-Address-111111111111111');
             return;
         }
 
         try {
-            app.updateLoadingState('Connecting to Phantom...', 'Opening wallet...');
+            if (window.app) {
+                window.app.updateLoadingState('Connecting to Phantom...', 'Opening wallet...');
+            }
             
             if (window.phantom?.solana?.isPhantom) {
                 const response = await window.phantom.solana.connect();
@@ -39,20 +41,27 @@ class WalletManager {
                 throw new Error('Phantom wallet not found. Please install Phantom from phantom.app');
             }
         } catch (error) {
-            app.showError(error.message);
+            if (window.app) {
+                window.app.showError(error.message);
+            }
+            console.error('Phantom connection error:', error);
         } finally {
-            app.hideLoading();
+            if (window.app) {
+                window.app.hideLoading();
+            }
         }
     }
 
     async connectSolflare() {
         if (this.isDemoMode) {
-            this.simulateConnection('solflare', DEMO_WALLETS.nietzsche);
+            this.simulateConnection('solflare', 'Demo-Nietzsche-Address-555555555555555');
             return;
         }
 
         try {
-            app.updateLoadingState('Connecting to Solflare...', 'Opening wallet...');
+            if (window.app) {
+                window.app.updateLoadingState('Connecting to Solflare...', 'Opening wallet...');
+            }
             
             if (window.solflare?.isSolflare) {
                 const response = await window.solflare.connect();
@@ -62,20 +71,27 @@ class WalletManager {
                 throw new Error('Solflare wallet not found. Please install Solflare from solflare.com');
             }
         } catch (error) {
-            app.showError(error.message);
+            if (window.app) {
+                window.app.showError(error.message);
+            }
+            console.error('Solflare connection error:', error);
         } finally {
-            app.hideLoading();
+            if (window.app) {
+                window.app.hideLoading();
+            }
         }
     }
 
     async connectBackpack() {
         if (this.isDemoMode) {
-            this.simulateConnection('backpack', DEMO_WALLETS.camus);
+            this.simulateConnection('backpack', 'Demo-Camus-Address-333333333333333');
             return;
         }
 
         try {
-            app.updateLoadingState('Connecting to Backpack...', 'Opening wallet...');
+            if (window.app) {
+                window.app.updateLoadingState('Connecting to Backpack...', 'Opening wallet...');
+            }
             
             if (window.backpack?.isBackpack) {
                 const response = await window.backpack.connect();
@@ -85,9 +101,14 @@ class WalletManager {
                 throw new Error('Backpack wallet not found. Please install Backpack from backpack.app');
             }
         } catch (error) {
-            app.showError(error.message);
+            if (window.app) {
+                window.app.showError(error.message);
+            }
+            console.error('Backpack connection error:', error);
         } finally {
-            app.hideLoading();
+            if (window.app) {
+                window.app.hideLoading();
+            }
         }
     }
 
@@ -112,10 +133,14 @@ class WalletManager {
     }
 
     simulateConnection(walletType, address) {
-        app.updateLoadingState(`Connecting to ${walletType}...`, 'Demo mode connection...');
+        if (window.app) {
+            window.app.updateLoadingState(`Connecting to ${walletType}...`, 'Demo mode connection...');
+        }
         setTimeout(() => {
             this.setConnectedWallet(walletType, address);
-            app.hideLoading();
+            if (window.app) {
+                window.app.hideLoading();
+            }
         }, 1000);
     }
 
@@ -144,7 +169,10 @@ class WalletManager {
         
         // Show wallet section and card header again when disconnecting
         document.getElementById('walletSection').style.display = 'block';
-        document.querySelector('.card-header').style.display = 'block';
+        const cardHeader = document.querySelector('.card-header');
+        if (cardHeader) {
+            cardHeader.style.display = 'block';
+        }
     }
 
     isValidSolanaAddress(address) {

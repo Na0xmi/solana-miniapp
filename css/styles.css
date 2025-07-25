@@ -68,8 +68,8 @@ h1, h2, h3 {
 .header {
     text-align: center;
     color: #2c2c2c;
-    margin-bottom: 2.5rem;
-    padding: 2.5rem 1.25rem;
+    margin-bottom: 1.5rem;
+    padding: 1.5rem 1.25rem;
     background: rgba(255,255,255,0.8);
     backdrop-filter: blur(10px);
     border-radius: 1.25rem;
@@ -139,15 +139,15 @@ h1, h2, h3 {
 }
 
 .card-content {
-    padding: 40px;
+    padding: 2rem;
     background: rgba(255,255,255,0.9);
 }
 
 /* Demo mode toggle */
 .demo-toggle {
     text-align: center;
-    margin-bottom: 30px;
-    padding: 20px;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
     background: rgba(0,0,0,0.02);
     border-radius: 12px;
     border: 1px solid rgba(0,0,0,0.05);
@@ -164,20 +164,26 @@ h1, h2, h3 {
     font-weight: 500;
 }
 
+/* Main content area - contains both wallet and results */
+.main-content-area {
+    position: relative;
+    min-height: 400px; /* Ensures consistent height */
+}
+
 /* Wallet section */
 .wallet-section {
     max-width: 500px;
-    margin: 0 auto 40px;
+    margin: 0 auto 2rem;
     text-align: center;
 }
 
 .wallet-status {
-    margin-bottom: 30px;
+    margin-bottom: 1.5rem;
 }
 
 .wallet-disconnected {
     background: rgba(248,248,248,0.8);
-    padding: 40px;
+    padding: 2rem;
     border-radius: 16px;
     border: 2px dashed rgba(0,0,0,0.1);
     backdrop-filter: blur(10px);
@@ -186,7 +192,7 @@ h1, h2, h3 {
 .wallet-connected {
     background: linear-gradient(135deg, #2c2c2c 0%, #1a1a1a 100%);
     color: white;
-    padding: 40px;
+    padding: 2rem;
     border-radius: 16px;
     box-shadow: 0 12px 40px rgba(0,0,0,0.15);
     position: relative;
@@ -232,7 +238,7 @@ h1, h2, h3 {
     background: rgba(255,255,255,0.9);
     border: 2px solid rgba(0,0,0,0.08);
     border-radius: 12px;
-    padding: 24px;
+    padding: 1rem;
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
@@ -467,6 +473,37 @@ h1, h2, h3 {
     object-fit: cover;
     filter: grayscale(20%) contrast(1.1) brightness(1.05);
     box-shadow: 0 0.25rem 1.25rem rgba(0,0,0,0.5);
+}
+
+.persona-quote {
+    font-size: clamp(1rem, 2.2vw, 1.25rem);
+    font-style: italic;
+    line-height: 1.6;
+    max-width: 500px;
+    margin: 1.5rem auto;
+    position: relative;
+    z-index: 1;
+    opacity: 0.9;
+    padding: 0 2rem;
+    text-align: center;
+}
+
+.persona-quote::before {
+    content: '"';
+    font-size: 2em;
+    position: absolute;
+    left: 0.5rem;
+    top: -0.2em;
+    opacity: 0.3;
+}
+
+.persona-quote::after {
+    content: '"';
+    font-size: 2em;
+    position: absolute;
+    right: 0.5rem;
+    bottom: -0.6em;
+    opacity: 0.3;
 }
 
 /* Stats grid */
