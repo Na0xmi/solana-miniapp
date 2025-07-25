@@ -2,12 +2,50 @@
 class SolanaPersonaApp {
     constructor() {
         this.analysisResults = null;
+        this.farcasterSDK = null;
         this.initialize();
     }
 
-    initialize() {
+    async initialize() {
         console.log('🔮 Solana Persona Analyzer initialized');
+        
+        // Initialize Farcaster SDK if available
+        await this.initializeFarcaster();
+        
         this.checkWalletAvailability();
+    }
+
+    async initializeFarcaster() {
+        try {
+            // Check if we're running in Farcaster
+            if (window.MiniAppProvider) {
+                const { MiniAppProvider } = window;
+                this.farcasterSDK = MiniAppProvider;
+                
+                // Wait for Farcaster to be ready
+                await this.farcasterSDK.ready();
+                console.log('✅ Farcaster Mini App SDK initialized');
+                
+                // Get user context if available
+                const context = await this.farcasterSDK.context();
+                if (context.user) {
+                    console.log('👤 Farcaster user:', context.user.username);
+                    this.handleFarcasterUser(context.user);
+                }
+            }
+        } catch (error) {
+            console.log('ℹ️ Not running in Farcaster environment:', error.message);
+            // Continue as normal web app
+        }
+    }
+
+    handleFarcasterUser(user) {
+        // Could auto-populate demo mode or show user-specific content
+        console.log(`Welcome ${user.username}! 🏛️`);
+        
+        // Optional: Automatically enable demo mode for Farcaster users
+        // document.getElementById('demoMode').checked = true;
+        // wallet.setDemoMode(true);
     }
 
     checkWalletAvailability() {
@@ -89,12 +127,17 @@ class SolanaPersonaApp {
     }
 
     generateDemoData(walletAddress) {
-        // Check if it's a specific demo wallet
-        const demoTypes = ['diogenes', 'schopenhauer', 'camus', 'marx', 'nietzsche'];
-        for (const type of demoTypes) {
-            if (walletAddress.includes(type.charAt(0).toUpperCase() + type.slice(1))) {
-                return generatePersonaData(type);
-            }
+        // Check if it's a specific demo wallet by looking at the address
+        if (walletAddress.includes('Diogenes')) {
+            return generatePersonaData('diogenes');
+        } else if (walletAddress.includes('Schopenhauer')) {
+            return generatePersonaData('schopenhauer');
+        } else if (walletAddress.includes('Camus')) {
+            return generatePersonaData('camus');
+        } else if (walletAddress.includes('Marx')) {
+            return generatePersonaData('marx');
+        } else if (walletAddress.includes('Nietzsche')) {
+            return generatePersonaData('nietzsche');
         }
         
         // Generate random but deterministic data
@@ -289,11 +332,35 @@ class SolanaPersonaApp {
         if (!this.analysisResults) return;
         
         const persona = PERSONAS[this.analysisResults.persona];
-        const text = `🔮 I'm a ${persona.title} on Solana! ${persona.icon}\n\nDiscover your Solana persona!`;
         
-        // For now, copy to clipboard - in production you'd integrate with Farcaster
+        // Enhanced Farcaster sharing with better formatting
+        const shareText = `🏛️ I'm ${persona.title}!\n\n` +
+            `"${persona.quote}"\n\n` +
+            `📊 My Solana stats:\n` +
+            `• ${this.analysisResults.totalTxs} transactions\n` +
+            `• ${this.analysisResults.nftCount} NFTs\n` +
+            `• ${this.analysisResults.memecoinTrades} memecoin trades\n\n` +
+            `Discover your philosopher: https://your-domain.com`;
+        
+        // If running in Farcaster Mini App, use native sharing
+        if (this.farcasterSDK) {
+            try {
+                // Use Farcaster's native sharing if available
+                this.farcasterSDK.close(shareText);
+            } catch (error) {
+                console.log('Native sharing failed, using fallback');
+                this.fallbackFarcasterShare(shareText);
+            }
+        } else {
+            this.fallbackFarcasterShare(shareText);
+        }
+    }
+
+    fallbackFarcasterShare(text) {
+        // Fallback: Copy to clipboard and open Warpcast
         navigator.clipboard.writeText(text).then(() => {
-            alert('Share text copied to clipboard!\n\n' + text);
+            const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(text)}`;
+            window.open(warpcastUrl, '_blank');
         }).catch(err => {
             console.error('Failed to copy:', err);
             alert('Share text: ' + text);

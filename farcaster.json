@@ -1,0 +1,15 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjEsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg4NzJkNjc3Yjg4NzE4NDU1In0",
+    "payload": "eyJkb21haW4iOiJ5b3VyLWRvbWFpbi5jb20ifQ",
+    "signature": "MHhkYWI4YjJiZGRlN2ZhNTMwNjU3ZmRiYTU5YmY4ZjJjMTUyYjQ1M2M4MzJkNjM3OWE5NDA5MTU3ZDJlMDJlNzE"
+  },
+  "version": "1",
+  "name": "Which Philosopher Am I?",
+  "iconUrl": "https://your-domain.com/images/app-icon.png",
+  "splashImageUrl": "https://your-domain.com/images/splash.png",
+  "splashBackgroundColor": "#1a1a1a",
+  "homeUrl": "https://your-domain.com",
+  "buttonTitle": "Discover Philosophy",
+  "description": "Discover your philosophical persona based on Solana trading activity"
+}
