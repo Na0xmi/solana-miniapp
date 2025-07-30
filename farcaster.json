@@ -9,7 +9,7 @@
   "iconUrl": "https://your-domain.com/images/app-icon.png",
   "splashImageUrl": "https://your-domain.com/images/splash.png",
   "splashBackgroundColor": "#1a1a1a",
-  "homeUrl": "https://your-domain.com",
+  "homeUrl": "https://solanaphilosopher.netlify.app",
   "buttonTitle": "Discover Philosophy",
   "description": "Discover your philosophical persona based on Solana trading activity"
 }
