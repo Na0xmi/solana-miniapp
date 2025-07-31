@@ -1,0 +1,52 @@
+[build]
+  publish = "."
+
+# Headers for security and Mini App compatibility
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "SAMEORIGIN"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    # Allow embedding in Farcaster
+    Content-Security-Policy = "frame-ancestors 'self' https://*.farcaster.xyz https://*.warpcast.com https://*.neynar.com"
+
+# Farcaster manifest with proper headers
+[[headers]]
+  for = "/farcaster.json"
+  [headers.values]
+    Content-Type = "application/json"
+    Cache-Control = "public, max-age=3600"
+    Access-Control-Allow-Origin = "*"
+
+# Image optimization
+[[headers]]
+  for = "/images/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000"
+    Vary = "Accept"
+
+# JavaScript files
+[[headers]]
+  for = "/js/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# CSS files
+[[headers]]
+  for = "/css/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"
+
+# Alternative path for Farcaster manifest (some tools look here)
+[[redirects]]
+  from = "/.well-known/farcaster.json"
+  to = "/farcaster.json"
+  status = 200
+
+# Force HTTPS
+[[redirects]]
+  from = "http://solanaphilosopher.netlify.app/*"
+  to = "https://solanaphilosopher.netlify.app/:splat"
+  status = 301
+  force = true

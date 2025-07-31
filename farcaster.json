@@ -1,15 +1,25 @@
 {
   "accountAssociation": {
     "header": "eyJmaWQiOjEsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHg4NzJkNjc3Yjg4NzE4NDU1In0",
-    "payload": "eyJkb21haW4iOiJ5b3VyLWRvbWFpbi5jb20ifQ",
+    "payload": "eyJkb21haW4iOiJzb2xhbmFwaGlsb3NvcGhlci5uZXRsaWZ5LmFwcCJ9",
     "signature": "MHhkYWI4YjJiZGRlN2ZhNTMwNjU3ZmRiYTU5YmY4ZjJjMTUyYjQ1M2M4MzJkNjM3OWE5NDA5MTU3ZDJlMDJlNzE"
   },
   "version": "1",
   "name": "Which Philosopher Am I?",
-  "iconUrl": "https://your-domain.com/images/app-icon.png",
-  "splashImageUrl": "https://your-domain.com/images/splash.png",
-  "splashBackgroundColor": "#1a1a1a",
+  "iconUrl": "https://solanaphilosopher.netlify.app/images/app-icon.png",
+  "splashImageUrl": "https://solanaphilosopher.netlify.app/images/splash.png",
+  "splashBackgroundColor": "#2c2c2c",
   "homeUrl": "https://solanaphilosopher.netlify.app",
   "buttonTitle": "Discover Philosophy",
-  "description": "Discover your philosophical persona based on Solana trading activity"
+  "description": "Discover your philosophical persona based on Solana trading activity",
+  "imageUrl": "https://solanaphilosopher.netlify.app/images/share-preview.png",
+  "colors": {
+    "primary": "#2c2c2c",
+    "background": "#fafafa"
+  },
+  "permissions": [],
+  "metadata": {
+    "category": "social",
+    "features": ["wallet-analysis", "personality-quiz", "social-sharing"]
+  }
 }
