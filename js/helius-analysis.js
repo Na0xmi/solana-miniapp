@@ -119,11 +119,12 @@ constructor() {
         }
     }
 
-    async getNFTs(walletAddress) {
-        try {
-            console.log('🎨 Starting enhanced NFT detection...');
-            
-            // Use the new comprehensive NFT detector
+async getNFTs(walletAddress) {
+    try {
+        console.log('🎨 Starting enhanced NFT detection...');
+        
+        // Check if metaplexNFTDetector is available
+        if (typeof metaplexNFTDetector !== 'undefined') {
             const result = await metaplexNFTDetector.detectNFTs(walletAddress, this.rpcUrl);
             
             if (result.success && result.nftCount > 0) {
@@ -131,17 +132,20 @@ constructor() {
                 return result;
             } else {
                 console.log(`🎨 ⚠️ NFT detection returned 0 NFTs using ${result.method}`);
-                
-                // If the sophisticated methods return 0, try our basic RPC fallback
-                console.log('🎨 Trying basic RPC fallback as final attempt...');
-                return await this.getNFTsBasicRPCFallback(walletAddress);
             }
-
-        } catch (error) {
-            console.error('🎨 Enhanced NFT detection failed:', error);
-            return await this.getNFTsBasicRPCFallback(walletAddress);
+        } else {
+            console.log('🎨 ⚠️ MetaplexNFTDetector not available, using RPC fallback');
         }
+        
+        // Use basic RPC fallback
+        console.log('🎨 Trying basic RPC fallback...');
+        return await this.getNFTsBasicRPCFallback(walletAddress);
+
+    } catch (error) {
+        console.error('🎨 Enhanced NFT detection failed:', error);
+        return await this.getNFTsBasicRPCFallback(walletAddress);
     }
+}
 
     async getNFTsBasicRPCFallback(walletAddress) {
         try {
