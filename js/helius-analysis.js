@@ -1,8 +1,9 @@
 // Helius API integration for real Solana data
 class HeliusAnalyzer {
-    constructor() {
-        // Check if CONFIG is available
-        if (typeof CONFIG !== 'undefined' && CONFIG.isConfigured()) {
+constructor() {
+    // Check if CONFIG is available with better error handling
+    try {
+        if (typeof CONFIG !== 'undefined' && CONFIG && typeof CONFIG.isConfigured === 'function' && CONFIG.isConfigured()) {
             this.apiKey = CONFIG.helius.apiKey;
             this.baseUrl = CONFIG.helius.baseUrl;
             this.rpcUrl = CONFIG.getRpcUrl();
@@ -16,28 +17,35 @@ class HeliusAnalyzer {
             console.log('⚠️ No Helius API key configured, using fallback mode');
             console.log('💡 Add your API key to js/config.js or use the UI input');
         }
-        
-        // Use token lists from config if available
-        this.knownTokens = {
-            memecoins: new Set(CONFIG?.tokens?.memecoins || [
-                'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK
-                'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm', // WIF
-                'ukHH6c7mMyiWCf1b9pnWe25TSpkDDt3H5pQZgZ74J82',  // BOME
-                '3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh', // WEN
-                'HeLp6NuQkmYB4pYWo2zYs22mESHXPQYzXbB8n4V98jwC'  // HELP
-            ]),
-            stablecoins: new Set(CONFIG?.tokens?.stablecoins || [
-                'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC
-                'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'  // USDT
-            ]),
-            defiPrograms: new Set(CONFIG?.tokens?.defiPrograms || [
-                '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM', // Serum
-                'DjVE6JNiYqPL2QXyCUUh8rNjHrbz9hXHNYt99MQ59qw1', // Orca
-                '675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8', // Raydium
-                'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'  // Jupiter
-            ])
-        };
+    } catch (configError) {
+        console.log('⚠️ Config loading error, using fallback:', configError.message);
+        this.apiKey = null;
+        this.baseUrl = 'https://api.helius.xyz/v0';
+        this.rpcUrl = null;
+        this.useFallback = true;
     }
+    
+    // Use token lists from config if available
+    this.knownTokens = {
+        memecoins: new Set((CONFIG?.tokens?.memecoins) || [
+            'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK
+            'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm', // WIF
+            'ukHH6c7mMyiWCf1b9pnWe25TSpkDDt3H5pQZgZ74J82',  // BOME
+            '3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh', // WEN
+            'HeLp6NuQkmYB4pYWo2zYs22mESHXPQYzXbB8n4V98jwC'  // HELP
+        ]),
+        stablecoins: new Set((CONFIG?.tokens?.stablecoins) || [
+            'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC
+            'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'  // USDT
+        ]),
+        defiPrograms: new Set((CONFIG?.tokens?.defiPrograms) || [
+            '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM', // Serum
+            'DjVE6JNiYqPL2QXyCUUh8rNjHrbz9hXHNYt99MQ59qw1', // Orca
+            '675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8', // Raydium
+            'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'  // Jupiter
+        ])
+    };
+}
 
     async analyzeWallet(walletAddress) {
         console.log('🔍 Starting Helius analysis for:', walletAddress);
