@@ -144,12 +144,14 @@ class SolanaPersonaApp {
         return generateRandomData(walletAddress);
     }
 
-    async performRealAnalysis(walletAddress) {
-        try {
-            console.log('🚀 Starting Helius analysis for:', walletAddress);
+async performRealAnalysis(walletAddress) {
+    try {
+        console.log('🚀 Starting real analysis for:', walletAddress);
+        
+        // Check if heliusAnalyzer is available
+        if (typeof heliusAnalyzer !== 'undefined') {
             this.updateProgress(20, 'Connecting to Helius API...');
             
-            // Use the Helius analyzer
             const analysisResults = await heliusAnalyzer.analyzeWallet(walletAddress);
             
             this.updateProgress(70, 'Processing blockchain data...');
@@ -160,17 +162,21 @@ class SolanaPersonaApp {
             
             console.log('✅ Analysis completed:', analysisResults);
             return analysisResults;
-            
-        } catch (error) {
-            console.error('❌ Analysis failed:', error);
-            
-            // Generate realistic fallback
-            console.log('🔄 Using intelligent fallback...');
-            const fallbackData = this.generateSmartFallback(walletAddress);
-            fallbackData.dataSource = 'smart_fallback';
-            return fallbackData;
+        } else {
+            console.log('⚠️ HeliusAnalyzer not available, using smart fallback');
+            throw new Error('HeliusAnalyzer not loaded');
         }
+        
+    } catch (error) {
+        console.error('❌ Analysis failed:', error);
+        
+        // Generate intelligent fallback
+        console.log('🔄 Using intelligent fallback...');
+        const fallbackData = this.generateSmartFallback(walletAddress);
+        fallbackData.dataSource = 'smart_fallback';
+        return fallbackData;
     }
+}
 
     generateSmartFallback(walletAddress) {
         // Generate realistic data based on wallet address characteristics

@@ -1,51 +1,50 @@
 // Helius API integration for real Solana data
 class HeliusAnalyzer {
-constructor() {
-    // Check if CONFIG is available with better error handling
-    try {
-        if (typeof CONFIG !== 'undefined' && CONFIG && typeof CONFIG.isConfigured === 'function' && CONFIG.isConfigured()) {
+    constructor() {
+        // Better CONFIG handling with error checking
+        let configAvailable = false;
+        try {
+            configAvailable = (typeof CONFIG !== 'undefined' && CONFIG && CONFIG.helius);
+        } catch (e) {
+            console.log('⚠️ CONFIG not available during HeliusAnalyzer init');
+        }
+
+        if (configAvailable && CONFIG.helius.apiKey && CONFIG.helius.apiKey.length > 0) {
             this.apiKey = CONFIG.helius.apiKey;
             this.baseUrl = CONFIG.helius.baseUrl;
             this.rpcUrl = CONFIG.getRpcUrl();
             this.useFallback = false;
-            console.log('✅ Helius API configured from config file');
+            console.log('✅ Helius API configured with key:', this.apiKey.substring(0, 8) + '...');
         } else {
             this.apiKey = null;
             this.baseUrl = 'https://api.helius.xyz/v0';
-            this.rpcUrl = null;
+            this.rpcUrl = 'https://api.mainnet-beta.solana.com';
             this.useFallback = true;
-            console.log('⚠️ No Helius API key configured, using fallback mode');
-            console.log('💡 Add your API key to js/config.js or use the UI input');
+            console.log('⚠️ No Helius API key found, using fallback mode');
+            console.log('💡 Add your API key to CONFIG.helius.apiKey in js/config.js');
         }
-    } catch (configError) {
-        console.log('⚠️ Config loading error, using fallback:', configError.message);
-        this.apiKey = null;
-        this.baseUrl = 'https://api.helius.xyz/v0';
-        this.rpcUrl = null;
-        this.useFallback = true;
+        
+        // Use token lists from config if available
+        this.knownTokens = {
+            memecoins: new Set((configAvailable ? CONFIG?.tokens?.memecoins : null) || [
+                'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK
+                'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm', // WIF
+                'ukHH6c7mMyiWCf1b9pnWe25TSpkDDt3H5pQZgZ74J82',  // BOME
+                '3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh', // WEN
+                'HeLp6NuQkmYB4pYWo2zYs22mESHXPQYzXbB8n4V98jwC'  // HELP
+            ]),
+            stablecoins: new Set((configAvailable ? CONFIG?.tokens?.stablecoins : null) || [
+                'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC
+                'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'  // USDT
+            ]),
+            defiPrograms: new Set((configAvailable ? CONFIG?.tokens?.defiPrograms : null) || [
+                '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM', // Serum
+                'DjVE6JNiYqPL2QXyCUUh8rNjHrbz9hXHNYt99MQ59qw1', // Orca
+                '675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8', // Raydium
+                'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'  // Jupiter
+            ])
+        };
     }
-    
-    // Use token lists from config if available
-    this.knownTokens = {
-        memecoins: new Set((CONFIG?.tokens?.memecoins) || [
-            'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK
-            'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm', // WIF
-            'ukHH6c7mMyiWCf1b9pnWe25TSpkDDt3H5pQZgZ74J82',  // BOME
-            '3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh', // WEN
-            'HeLp6NuQkmYB4pYWo2zYs22mESHXPQYzXbB8n4V98jwC'  // HELP
-        ]),
-        stablecoins: new Set((CONFIG?.tokens?.stablecoins) || [
-            'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC
-            'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'  // USDT
-        ]),
-        defiPrograms: new Set((CONFIG?.tokens?.defiPrograms) || [
-            '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM', // Serum
-            'DjVE6JNiYqPL2QXyCUUh8rNjHrbz9hXHNYt99MQ59qw1', // Orca
-            '675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8', // Raydium
-            'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4'  // Jupiter
-        ])
-    };
-}
 
     async analyzeWallet(walletAddress) {
         console.log('🔍 Starting Helius analysis for:', walletAddress);
@@ -56,6 +55,8 @@ constructor() {
         }
 
         try {
+            console.log('🚀 Using real Helius API for analysis');
+            
             // Run multiple API calls in parallel with individual error handling
             const [
                 balancesResult,
@@ -99,10 +100,11 @@ constructor() {
             const response = await fetch(`${this.baseUrl}/addresses/${walletAddress}/balances?api-key=${this.apiKey}`);
             
             if (!response.ok) {
-                throw new Error(`Helius API error: ${response.status}`);
+                throw new Error(`Helius API error: ${response.status} ${response.statusText}`);
             }
 
             const data = await response.json();
+            console.log('🪙 ✅ Token balances received:', data.tokens?.length || 0, 'tokens');
             
             // Analyze tokens for memecoins and DeFi
             const analysis = this.analyzeTokenBalances(data.tokens || []);
@@ -110,48 +112,55 @@ constructor() {
             return {
                 success: true,
                 totalTokens: data.tokens?.length || 0,
+                nativeBalance: data.nativeBalance || 0,
                 ...analysis
             };
 
         } catch (error) {
-            console.error('Token balances API failed:', error);
+            console.error('🪙 ❌ Token balances API failed:', error.message);
             return { success: false, error: error.message };
         }
     }
 
-async getNFTs(walletAddress) {
-    try {
-        console.log('🎨 Starting enhanced NFT detection...');
-        
-        // Check if metaplexNFTDetector is available
-        if (typeof metaplexNFTDetector !== 'undefined') {
-            const result = await metaplexNFTDetector.detectNFTs(walletAddress, this.rpcUrl);
-            
-            if (result.success && result.nftCount > 0) {
-                console.log(`🎨 ✅ Successfully detected ${result.nftCount} NFTs using ${result.method}`);
-                return result;
-            } else {
-                console.log(`🎨 ⚠️ NFT detection returned 0 NFTs using ${result.method}`);
-            }
-        } else {
-            console.log('🎨 ⚠️ MetaplexNFTDetector not available, using RPC fallback');
-        }
-        
-        // Use basic RPC fallback
-        console.log('🎨 Trying basic RPC fallback...');
-        return await this.getNFTsBasicRPCFallback(walletAddress);
-
-    } catch (error) {
-        console.error('🎨 Enhanced NFT detection failed:', error);
-        return await this.getNFTsBasicRPCFallback(walletAddress);
-    }
-}
-
-    async getNFTsBasicRPCFallback(walletAddress) {
+    async getNFTs(walletAddress) {
         try {
-            console.log('🎨 Basic RPC NFT fallback...');
+            console.log('🎨 Starting NFT detection...');
             
-            const connection = new solanaWeb3.Connection(this.rpcUrl || 'https://api.mainnet-beta.solana.com');
+            // Try Helius Digital Assets API first
+            const response = await fetch(`${this.baseUrl}/addresses/${walletAddress}/nfts?api-key=${this.apiKey}`);
+            
+            if (response.ok) {
+                const data = await response.json();
+                const nftCount = data.length || 0;
+                console.log(`🎨 ✅ Found ${nftCount} NFTs via Helius Digital Assets API`);
+                
+                return {
+                    success: true,
+                    nftCount: nftCount,
+                    method: 'helius_digital_assets',
+                    nfts: data.slice(0, 5).map(nft => ({
+                        mint: nft.id,
+                        name: nft.content?.metadata?.name || 'Unknown NFT',
+                        symbol: nft.content?.metadata?.symbol || '',
+                        image: nft.content?.files?.[0]?.uri || ''
+                    }))
+                };
+            } else {
+                console.log('🎨 ⚠️ Helius Digital Assets API failed, trying RPC fallback');
+                return await this.getNFTsRPCFallback(walletAddress);
+            }
+
+        } catch (error) {
+            console.error('🎨 ❌ NFT detection failed:', error);
+            return await this.getNFTsRPCFallback(walletAddress);
+        }
+    }
+
+    async getNFTsRPCFallback(walletAddress) {
+        try {
+            console.log('🎨 Using RPC method for NFT detection...');
+            
+            const connection = new solanaWeb3.Connection(this.rpcUrl);
             const publicKey = new solanaWeb3.PublicKey(walletAddress);
             
             // Get all token accounts
@@ -161,31 +170,18 @@ async getNFTs(walletAddress) {
 
             console.log(`🎨 Found ${tokenAccounts.value.length} total token accounts`);
 
-            // Filter for NFT-like tokens
+            // Filter for NFT-like tokens (amount = 1, decimals = 0)
             const nftLikeTokens = tokenAccounts.value.filter(account => {
                 const tokenAmount = account.account.data.parsed.info.tokenAmount;
                 return tokenAmount.amount === "1" && tokenAmount.decimals === 0;
             });
 
-            console.log(`🎨 Found ${nftLikeTokens.length} tokens with NFT characteristics`);
-
-            if (nftLikeTokens.length === 0) {
-                return {
-                    success: true,
-                    nftCount: 0,
-                    method: 'rpc_fallback_no_nfts',
-                    totalTokenAccounts: tokenAccounts.value.length
-                };
-            }
-
-            // For tokens that look like NFTs, assume they are NFTs
-            // This is a reasonable assumption since most amount=1, decimals=0 tokens are NFTs
-            console.log(`🎨 Assuming all ${nftLikeTokens.length} NFT-like tokens are actual NFTs`);
+            console.log(`🎨 Found ${nftLikeTokens.length} potential NFTs (amount=1, decimals=0)`);
 
             return {
                 success: true,
                 nftCount: nftLikeTokens.length,
-                method: 'rpc_fallback_assumption',
+                method: 'rpc_fallback',
                 totalTokenAccounts: tokenAccounts.value.length,
                 nfts: nftLikeTokens.slice(0, 5).map(account => ({
                     mint: account.account.data.parsed.info.mint,
@@ -194,7 +190,7 @@ async getNFTs(walletAddress) {
             };
 
         } catch (error) {
-            console.error('🎨 Basic RPC fallback failed:', error);
+            console.error('🎨 ❌ RPC NFT fallback failed:', error);
             return {
                 success: false,
                 nftCount: 0,
@@ -204,153 +200,20 @@ async getNFTs(walletAddress) {
         }
     }
 
-    async getNFTsAlternative(walletAddress) {
-        try {
-            console.log('🎨 Advanced NFT detection via RPC...');
-            
-            const connection = new solanaWeb3.Connection(this.rpcUrl || 'https://api.mainnet-beta.solana.com');
-            const publicKey = new solanaWeb3.PublicKey(walletAddress);
-            
-            // Get all token accounts
-            const tokenAccounts = await connection.getParsedTokenAccountsByOwner(publicKey, {
-                programId: new solanaWeb3.PublicKey('TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA')
-            });
-
-            console.log(`🎨 Found ${tokenAccounts.value.length} total token accounts`);
-
-            // NFTs have specific characteristics: amount = 1, decimals = 0
-            const nftLikeTokens = tokenAccounts.value.filter(account => {
-                const tokenAmount = account.account.data.parsed.info.tokenAmount;
-                const amount = tokenAmount.amount;
-                const decimals = tokenAmount.decimals;
-                
-                // NFTs should have exactly 1 token with 0 decimals
-                return amount === "1" && decimals === 0;
-            });
-
-            console.log(`🎨 Found ${nftLikeTokens.length} tokens with NFT characteristics (amount=1, decimals=0)`);
-
-            if (nftLikeTokens.length === 0) {
-                console.log('🎨 No NFT-like tokens found via RPC');
-                return {
-                    success: true,
-                    nftCount: 0,
-                    method: 'rpc_no_nfts_found',
-                    totalTokenAccounts: tokenAccounts.value.length
-                };
-            }
-
-            // Try to verify these are actually NFTs by checking metadata
-            let verifiedNFTs = 0;
-            const sampleSize = Math.min(nftLikeTokens.length, 10);
-            
-            console.log(`🎨 Verifying ${sampleSize} potential NFTs for metadata...`);
-
-            for (let i = 0; i < sampleSize; i++) {
-                const mint = nftLikeTokens[i].account.data.parsed.info.mint;
-                try {
-                    const hasMetadata = await this.checkForNFTMetadata(connection, mint);
-                    if (hasMetadata) {
-                        verifiedNFTs++;
-                        console.log(`🎨 ✅ Verified NFT: ${mint.substring(0, 8)}...`);
-                    } else {
-                        console.log(`🎨 ❌ Not an NFT: ${mint.substring(0, 8)}... (no metadata)`);
-                    }
-                } catch (metaError) {
-                    console.log(`🎨 ⚠️ Couldn't verify ${mint.substring(0, 8)}...: ${metaError.message}`);
-                }
-            }
-
-            // Calculate final NFT count
-            let finalNFTCount;
-            if (verifiedNFTs > 0) {
-                // Scale up based on verification rate
-                finalNFTCount = Math.round(nftLikeTokens.length * (verifiedNFTs / sampleSize));
-                console.log(`🎨 Estimated ${finalNFTCount} NFTs (${verifiedNFTs}/${sampleSize} verified, scaled up)`);
-            } else {
-                // If no metadata found, but tokens exist, they might still be NFTs
-                // Some NFTs don't have standard Metaplex metadata
-                finalNFTCount = nftLikeTokens.length;
-                console.log(`🎨 Assuming ${finalNFTCount} NFTs (no metadata found, but tokens match NFT pattern)`);
-            }
-
-            return {
-                success: true,
-                nftCount: Math.max(finalNFTCount, 0),
-                method: 'rpc_advanced_analysis',
-                potentialNFTs: nftLikeTokens.length,
-                verifiedSample: verifiedNFTs,
-                sampleSize: sampleSize,
-                totalTokenAccounts: tokenAccounts.value.length,
-                nfts: nftLikeTokens.slice(0, 3).map(account => ({
-                    mint: account.account.data.parsed.info.mint,
-                    amount: account.account.data.parsed.info.tokenAmount.amount
-                }))
-            };
-
-        } catch (altError) {
-            console.error('🎨 Advanced NFT detection failed:', altError);
-            
-            // Final manual estimate - if user says they have NFTs, believe them :)
-            return {
-                success: false,
-                nftCount: 3, // Fallback to a reasonable estimate
-                error: `NFT detection failed: ${altError.message}`,
-                method: 'manual_fallback_estimate'
-            };
-        }
-    }
-
-    async checkForNFTMetadata(connection, mintAddress) {
-        try {
-            // Check for Metaplex metadata account
-            const metadataPDA = await this.getMetadataPDA(mintAddress);
-            const metadataAccount = await connection.getAccountInfo(metadataPDA);
-            
-            if (metadataAccount && metadataAccount.data.length > 0) {
-                return true; // Has Metaplex metadata
-            }
-
-            // Also check if it's a compressed NFT or other standard
-            // (This is a simplified check)
-            return false;
-            
-        } catch (error) {
-            console.log(`🎨 Metadata check failed for ${mintAddress}: ${error.message}`);
-            return false;
-        }
-    }
-
-    async getMetadataPDA(mintAddress) {
-        // Calculate Metaplex metadata PDA (Program Derived Address)
-        const METADATA_PROGRAM_ID = 'metaqbxxUerdq28cj1RbAWkYQm3ybzjb6a8bt518x1s';
-        const seeds = [
-            Buffer.from('metadata'),
-            new solanaWeb3.PublicKey(METADATA_PROGRAM_ID).toBuffer(),
-            new solanaWeb3.PublicKey(mintAddress).toBuffer(),
-        ];
-        
-        const [metadataPDA] = await solanaWeb3.PublicKey.findProgramAddress(
-            seeds,
-            new solanaWeb3.PublicKey(METADATA_PROGRAM_ID)
-        );
-        
-        return metadataPDA;
-    }
-
     async getTransactionHistory(walletAddress) {
         try {
             console.log('📊 Fetching transaction history from Helius...');
             
             // Try Helius enhanced transactions endpoint
-            const response = await fetch(`${this.baseUrl}/addresses/${walletAddress}/transactions?api-key=${this.apiKey}&limit=50&type=TRANSFER`);
+            const response = await fetch(`${this.baseUrl}/addresses/${walletAddress}/transactions?api-key=${this.apiKey}&limit=100`);
             
             if (!response.ok) {
-                console.log(`Transaction API returned ${response.status}, trying RPC fallback...`);
+                console.log(`📊 ⚠️ Transaction API returned ${response.status}, trying RPC fallback...`);
                 return await this.getTransactionHistoryRPC(walletAddress);
             }
 
             const data = await response.json();
+            console.log(`📊 ✅ Received ${data.length} transactions from Helius`);
             
             // Analyze transactions for DeFi and trading activity
             const analysis = this.analyzeTransactionHistory(data);
@@ -362,31 +225,32 @@ async getNFTs(walletAddress) {
             };
 
         } catch (error) {
-            console.error('Transaction history API failed:', error);
+            console.error('📊 ❌ Transaction history API failed:', error);
             return await this.getTransactionHistoryRPC(walletAddress);
         }
     }
 
     async getTransactionHistoryRPC(walletAddress) {
         try {
-            console.log('📊 Falling back to RPC for transaction count...');
+            console.log('📊 Using RPC for transaction count...');
             
-            const connection = new solanaWeb3.Connection(this.rpcUrl || 'https://api.mainnet-beta.solana.com');
+            const connection = new solanaWeb3.Connection(this.rpcUrl);
             const publicKey = new solanaWeb3.PublicKey(walletAddress);
             
-            const signatures = await connection.getSignaturesForAddress(publicKey, { limit: 100 });
+            const signatures = await connection.getSignaturesForAddress(publicKey, { limit: 1000 });
+            console.log(`📊 ✅ Found ${signatures.length} transactions via RPC`);
             
             return {
                 success: true,
                 totalTransactions: signatures.length,
-                defiActivity: Math.floor(signatures.length * 0.1), // Estimate
-                memecoinActivity: Math.floor(signatures.length * 0.15), // Estimate
+                defiActivity: Math.floor(signatures.length * 0.15), // Estimate
+                memecoinActivity: Math.floor(signatures.length * 0.20), // Estimate
                 volume: Math.floor(signatures.length * 0.5), // Estimate
                 method: 'rpc_fallback'
             };
 
         } catch (rpcError) {
-            console.error('RPC transaction fallback failed:', rpcError);
+            console.error('📊 ❌ RPC transaction fallback failed:', rpcError);
             return { 
                 success: false, 
                 error: rpcError.message, 
@@ -399,19 +263,8 @@ async getNFTs(walletAddress) {
     }
 
     analyzeTokenBalances(tokens) {
-        const knownMemecoins = new Set([
-            'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', // BONK
-            'EKpQGSJtjMFqKZ9KQanSqYXRcF8fBopzLHYxdM65zcjm', // WIF  
-            'ukHH6c7mMyiWCf1b9pnWe25TSpkDDt3H5pQZgZ74J82',  // BOME
-            '3NZ9JMVBmGAqocybic2c7LQCJScmgsAZ6vQqTDzcqmJh', // WEN
-            'HeLp6NuQkmYB4pYWo2zYs22mESHXPQYzXbB8n4V98jwC'  // HELP
-        ]);
-
-        const stablecoins = new Set([
-            'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', // USDC
-            'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB'  // USDT
-        ]);
-
+        console.log('🪙 Analyzing', tokens.length, 'token balances...');
+        
         let memecoinHoldings = 0;
         let defiTokens = 0;
         let totalValue = 0;
@@ -419,26 +272,30 @@ async getNFTs(walletAddress) {
         tokens.forEach(token => {
             const mint = token.mint || token.address;
             const amount = token.amount || 0;
+            const usdValue = token.usdValue || 0;
             
-            if (knownMemecoins.has(mint)) {
+            if (this.knownTokens.memecoins.has(mint)) {
                 memecoinHoldings++;
+                console.log('🎭 Found memecoin:', mint.substring(0, 8) + '...');
             }
             
             // LP tokens and yield farming tokens typically have specific characteristics
-            if (amount > 0 && amount < 1000 && !stablecoins.has(mint) && !knownMemecoins.has(mint)) {
+            if (amount > 0 && amount < 1000 && !this.knownTokens.stablecoins.has(mint) && !this.knownTokens.memecoins.has(mint)) {
                 defiTokens++;
             }
             
-            totalValue += token.usdValue || 0;
+            totalValue += usdValue;
         });
+
+        console.log('🪙 Analysis results:', { memecoinHoldings, defiTokens, totalValue });
 
         return {
             memecoinHoldings,
             defiTokens,
             totalValue: Math.round(totalValue * 100) / 100,
             // Estimate trading activity based on holdings
-            estimatedMemecoinTrades: memecoinHoldings * 8,
-            estimatedDefiInteractions: defiTokens * 5
+            estimatedMemecoinTrades: memecoinHoldings * 12,
+            estimatedDefiInteractions: defiTokens * 8
         };
     }
 
@@ -447,11 +304,13 @@ async getNFTs(walletAddress) {
             return { defiActivity: 0, memecoinActivity: 0, volume: 0 };
         }
 
+        console.log(`📊 Analyzing ${transactions.length} transactions for DeFi and memecoin activity...`);
+
         let defiActivity = 0;
         let memecoinActivity = 0;
         let totalVolume = 0;
 
-        // Extended DeFi program IDs including more protocols
+        // Extended DeFi program IDs
         const defiPrograms = new Set([
             // DEXs
             '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM', // Serum
@@ -459,92 +318,47 @@ async getNFTs(walletAddress) {
             '675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8', // Raydium
             'JUP6LkbZbjS1jKKwapdHNy74zcZ3tLUZoi5QNyVTaV4',  // Jupiter v6
             'JUP4Fb2cqiRUcaTHdrPC8h2gNsA2ETXiPDD33WcGuJB',  // Jupiter v4
-            'JUP2jxvXaqu7NQY1GmNF4m1vodw12LVXYxbFL2uJvfo',  // Jupiter v3
-            
-            // Perpetuals & Derivatives
-            'dRiftyHA39MWEi3m9aunc5MzRF1JYuBsbn6VPcn33UH',  // Drift Protocol
-            'ALP8SdU9oARYVLgLR7LrqMNCYBnhtnQy1cKXmxwZwR', // Drift (alternative)
-            'opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb',  // OpenBook
-            'srmqPvymJeFKQ4zGQed1GFppgkRHL9kaELCbyksJtPX',  // Serum (old)
             
             // Lending & Borrowing
             'So1endDq2YkqhipRh3WViPa8hdiSpxWy6z3Z6tMCpAo',  // Solend
             'LendZqTs7gn5CTSJU1jWKhKuVpjFGom45nnwPb2AMTi',  // Port Finance
-            'FC81tbGt6JWRXidaWYFXxGnTk4VgobhJHATvTRVMqgWj', // Francium
-            'MarBmsSgKXdrN1egZf5sqe1TMai9K1rChYNDJgjq7aD',  // Marinade
-            
-            // Yield Farming
-            'TuLipcqtGVXP9XR62wM8WWCm6a9vhLs7T1uoWBk6FDs',  // Tulip
-            'SSwpkEEcbUqx4vtoEByFjSkhKdCT862DNVb52nZg1UZ',  // Saber
-            'MERLuDFBMmsHnsBPZw2sDQZHvXFMwp8EdjudcU2HKky', // Mercurial
-            '9KEPoZmtHUrBbhWN1v1KWLMkkvwY6WLtAVUCPRtRjP4z', // Orca Whirlpools
             
             // Staking
             '8szGkuLTAux9XMgZ2vtY39jVSowEcpBfFfD8hXSEqdGC', // Marinade
-            'CrX7kMhLC3cSsXJdT7JDgqrRVWGnUpX3gfEfxxU2NVLi', // Lido
-            'StakeSSzfxn391k3LveFLFo6EDABhMGH5AZ5Pg2fBvKY',  // Stake Pool
+            'CrX7kMhLC3cSsXJdT7JDgqrRVWGnX3gfEfxxU2NVLi', // Lido
             
-            // Options & Structured Products
-            'PsyFiqqjiv41G7o5SMRzDJCu4psptThNR2GtfeGHfSq',  // PsyOptions
-            'DtmE9D2CSB4L5D6A15mraeEjrGMm6auWVzgaD4jVDOZb',  // Dual Finance
-            
-            // Cross-chain
-            'wormDTUJ6AWPNvk59vGQbDvGJmqbDTdgWgAqcLBCgUb',  // Wormhole
-            'A2yFwEqAMgczr4pGSKeMDFjp6K3Gm8SJ7YECCvHQrm1J',  // AllBridge
+            // Perpetuals
+            'dRiftyHA39MWEi3m9auncq54JQMS1FGZFVH3oD2AgJb',  // Drift
         ]);
 
-        console.log(`📊 Analyzing ${transactions.length} transactions for DeFi activity...`);
-
-        transactions.slice(0, 50).forEach((tx, index) => {
+        transactions.slice(0, 100).forEach((tx, index) => {
             try {
-                // Check for DeFi interactions in instructions
+                // Check for DeFi interactions
                 if (tx.instructions) {
                     tx.instructions.forEach(instruction => {
                         const programId = instruction.programId;
                         if (programId && defiPrograms.has(programId)) {
                             defiActivity++;
-                            console.log(`📊 ✅ Found DeFi interaction with ${this.getProtocolName(programId)} in tx ${index + 1}`);
+                            console.log(`📊 ✅ Found DeFi interaction: ${this.getProtocolName(programId)}`);
                         }
                     });
                 }
 
-                // Also check account keys for program interactions
-                if (tx.accountKeys) {
-                    tx.accountKeys.forEach(accountKey => {
-                        if (defiPrograms.has(accountKey)) {
-                            defiActivity++;
-                            console.log(`📊 ✅ Found DeFi account interaction with ${this.getProtocolName(accountKey)} in tx ${index + 1}`);
+                // Check for memecoin activity
+                if (tx.tokenTransfers && tx.tokenTransfers.length > 0) {
+                    tx.tokenTransfers.forEach(transfer => {
+                        if (transfer.mint && this.knownTokens.memecoins.has(transfer.mint)) {
+                            memecoinActivity++;
+                            console.log(`🎭 ✅ Found memecoin activity: ${transfer.mint.substring(0, 8)}...`);
                         }
                     });
                 }
 
-                // Check for program interactions in a different format
-                if (tx.type && (tx.type.includes('SWAP') || tx.type.includes('TRADE') || tx.type.includes('STAKE'))) {
-                    defiActivity++;
-                    console.log(`📊 ✅ Found DeFi activity type: ${tx.type} in tx ${index + 1}`);
-                }
-
-                // Estimate volume from transaction
+                // Estimate volume
                 if (tx.nativeTransfers && tx.nativeTransfers.length > 0) {
                     tx.nativeTransfers.forEach(transfer => {
                         totalVolume += Math.abs(transfer.amount || 0) / 1e9; // Convert lamports to SOL
                     });
-                }
-
-                // Check for token transfers (potential memecoin trading)
-                if (tx.tokenTransfers && tx.tokenTransfers.length > 0) {
-                    // Check if any token transfers involve known memecoins
-                    tx.tokenTransfers.forEach(transfer => {
-                        if (transfer.mint && this.knownTokens.memecoins.has(transfer.mint)) {
-                            memecoinActivity++;
-                            console.log(`📊 ✅ Found memecoin transfer: ${transfer.mint.substring(0, 8)}... in tx ${index + 1}`);
-                        }
-                    });
-                    
-                    // General token transfer activity (potential trading)
-                    if (tx.tokenTransfers.length > 1) {
-                        memecoinActivity++; // Multi-token transfers often indicate trading
-                    }
                 }
 
             } catch (txError) {
@@ -552,8 +366,11 @@ async getNFTs(walletAddress) {
             }
         });
 
-        console.log(`📊 DeFi Analysis Results: ${defiActivity} interactions found`);
-        console.log(`📊 Memecoin Analysis Results: ${memecoinActivity} activities found`);
+        console.log(`📊 Transaction analysis complete:`, {
+            defiActivity: defiActivity + ' interactions',
+            memecoinActivity: memecoinActivity + ' activities',
+            volume: Math.round(totalVolume * 100) / 100 + ' SOL'
+        });
 
         return {
             defiActivity,
@@ -570,14 +387,15 @@ async getNFTs(walletAddress) {
             '675kPX9MHTjS2zt1qfr1NYHuzeLXfQM9H24wFSUt1Mp8': 'Raydium',
             '9WzDXwBbmkg8ZTbNMqUxvQRAyrZzDsGYdLVL9zYtAWWM': 'Serum',
             'So1endDq2YkqhipRh3WViPa8hdiSpxWy6z3Z6tMCpAo': 'Solend',
-            '8szGkuLTAux9XMgZ2vtY39jVSowEcpBfFfD8hXSEqdGC': 'Marinade',
-            'opnb2LAfJYbRMAHHvqjCwQxanZn7ReEHp1k81EohpZb': 'OpenBook'
+            '8szGkuLTAux9XMgZ2vtY39jVSowEcpBfFfD8hXSEqdGC': 'Marinade'
         };
         
-        return protocolNames[programId] || `Unknown Protocol (${programId.substring(0, 8)}...)`;
+        return protocolNames[programId] || `Protocol (${programId.substring(0, 8)}...)`;
     }
 
     combineHeliusResults(balancesResult, nftResult, transactionsResult, walletAddress) {
+        console.log('🔄 Combining Helius API results...');
+        
         // Extract successful results
         const balances = balancesResult.status === 'fulfilled' ? balancesResult.value : {};
         const nfts = nftResult.status === 'fulfilled' ? nftResult.value : {};
@@ -590,115 +408,66 @@ async getNFTs(walletAddress) {
         // Get memecoin trades from both token holdings and transaction analysis
         const memecoinTrades = Math.max(
             balances.estimatedMemecoinTrades || 0,
-            transactions.memecoinActivity || 0
+            transactions.memecoinActivity || 0,
+            balances.memecoinHoldings * 5 || 0
         );
         
         // Get DeFi count from both sources
         const defiCount = Math.max(
             balances.estimatedDefiInteractions || 0,
-            transactions.defiActivity || 0
+            transactions.defiActivity || 0,
+            balances.defiTokens * 3 || 0
         );
 
         const totalVolume = transactions.volume || balances.totalValue || 0;
         
-        // Calculate account age estimate
-        const accountAge = Math.max(30, Math.floor(totalTxs / 2));
+        // Calculate account age estimate based on transaction count
+        const accountAge = Math.max(30, Math.floor(totalTxs / 3));
 
-        const basicStats = {
+        const analysisResults = {
             totalTxs,
             nftCount,
             memecoinTrades,
             defiCount,
             totalVolume,
-            uniquePrograms: Math.floor(totalTxs / 15) + 5,
+            uniquePrograms: Math.floor(totalTxs / 20) + Math.floor(defiCount / 2) + 5,
             accountAge,
             isVirgin: totalTxs === 0,
-            dataSource: 'helius_api',
+            dataSource: 'helius_api_real',
             apiResults: {
                 balances: balances.success || false,
                 nfts: nfts.success || false,
                 transactions: transactions.success || false
+            },
+            // Include raw data for debugging
+            rawData: {
+                tokenCount: balances.totalTokens || 0,
+                nativeBalance: balances.nativeBalance || 0,
+                nftMethod: nfts.method || 'unknown',
+                txMethod: transactions.method || 'unknown'
             }
         };
 
-        // Try to add performance analysis
-        try {
-            if (typeof performanceAnalyzer !== 'undefined') {
-                console.log('💰 Adding performance analysis...');
-                // Note: We'll do this async in the main analysis function
-                basicStats.hasPerformanceData = false;
-            }
-        } catch (perfError) {
-            console.log('💰 Performance analyzer not available:', perfError.message);
-        }
-
-        // Use the enhanced persona determination
-        const persona = this.determinePersonaEnhanced(basicStats);
-        
-        return {
-            ...basicStats,
-            persona
-        };
-    }
-
-    // Enhanced persona determination with backward compatibility
-    determinePersonaEnhanced(stats, performance = null) {
-        console.log('🏛️ Determining philosopher persona...');
-        
-        if (performance && typeof determinePersonaWithPerformance === 'function') {
-            return determinePersonaWithPerformance(stats, performance);
-        } else if (typeof determinePersona === 'function') {
-            return determinePersona(stats);
-        } else {
-            // Fallback logic built-in
-            return this.fallbackPersonaDetermination(stats);
-        }
-    }
-
-    // Fallback persona determination if external functions fail
-    fallbackPersonaDetermination(stats) {
-        console.log('🏛️ Using fallback persona determination...');
-        
-        // Diogenes - The minimalist
-        if (stats.totalTxs === 0 || stats.isVirgin) {
-            return 'diogenes';
-        }
-        
-        // Camus - High memecoin activity (chaos embraced)
-        if (stats.memecoinTrades >= 10) {
-            return 'camus';
-        }
-        
-        // Marx - High DeFi activity
-        if (stats.defiCount >= 5) {
-            return 'marx';
-        }
-        
-        // Nietzsche - High NFT activity
-        if (stats.nftCount >= 5) {
-            return 'nietzsche';
-        }
-        
-        // Default to Schopenhauer
-        return 'schopenhauer';
+        console.log('✅ Combined analysis results:', analysisResults);
+        return analysisResults;
     }
 
     generateSmartFallback(walletAddress) {
-        console.log('🎯 Generating smart fallback for demo...');
+        console.log('🎯 Generating smart fallback analysis...');
         
-        // Generate deterministic but realistic data
+        // Generate deterministic but realistic data based on wallet address
         const hash = this.hashString(walletAddress);
         const random = (hash % 10000) / 10000;
         
-        // Create different user archetypes
+        // Create different user archetypes based on wallet characteristics
         if (random < 0.1) {
-            return { // Virgin
+            return { // Virgin wallet
                 totalTxs: 0, nftCount: 0, memecoinTrades: 0, defiCount: 0,
                 totalVolume: 0, uniquePrograms: 0, accountAge: 0, isVirgin: true,
                 dataSource: 'fallback_virgin'
             };
         } else if (random < 0.3) {
-            return { // Novice
+            return { // Novice user
                 totalTxs: Math.floor(20 + random * 80),
                 nftCount: Math.floor(random * 12),
                 memecoinTrades: Math.floor(random * 25),
@@ -710,7 +479,7 @@ async getNFTs(walletAddress) {
                 dataSource: 'fallback_novice'
             };
         } else if (random < 0.6) {
-            return { // Active
+            return { // Active user
                 totalTxs: Math.floor(150 + random * 350),
                 nftCount: Math.floor(8 + random * 40),
                 memecoinTrades: Math.floor(25 + random * 100),
@@ -722,7 +491,7 @@ async getNFTs(walletAddress) {
                 dataSource: 'fallback_active'
             };
         } else if (random < 0.85) {
-            return { // Builder/Power User
+            return { // Power user
                 totalTxs: Math.floor(400 + random * 600),
                 nftCount: Math.floor(15 + random * 60),
                 memecoinTrades: Math.floor(40 + random * 120),
@@ -731,10 +500,10 @@ async getNFTs(walletAddress) {
                 uniquePrograms: Math.floor(20 + random * 40),
                 accountAge: Math.floor(120 + random * 300),
                 isVirgin: false,
-                dataSource: 'fallback_builder'
+                dataSource: 'fallback_power_user'
             };
         } else {
-            return { // Degen
+            return { // Degen trader
                 totalTxs: Math.floor(600 + random * 800),
                 nftCount: Math.floor(10 + random * 50),
                 memecoinTrades: Math.floor(150 + random * 400),
@@ -763,9 +532,69 @@ async getNFTs(walletAddress) {
         this.apiKey = apiKey;
         this.rpcUrl = `https://rpc.helius.xyz/?api-key=${apiKey}`;
         this.useFallback = false;
-        console.log('✅ Helius API key configured');
+        console.log('✅ Helius API key updated:', apiKey.substring(0, 8) + '...');
+    }
+
+    // Method to check if API is working
+    async testConnection() {
+        if (!this.apiKey) {
+            console.log('❌ No API key configured');
+            return false;
+        }
+
+        try {
+            const response = await fetch(`${this.baseUrl}/rpc?api-key=${this.apiKey}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    id: 'test',
+                    method: 'getHealth'
+                })
+            });
+            
+            if (response.ok) {
+                console.log('✅ Helius API connection successful');
+                return true;
+            } else {
+                console.log('❌ Helius API connection failed:', response.status);
+                return false;
+            }
+        } catch (error) {
+            console.log('❌ Helius API test failed:', error.message);
+            return false;
+        }
     }
 }
 
-// Create global instance
-const heliusAnalyzer = new HeliusAnalyzer();
+// Create global instance with enhanced error handling
+let heliusAnalyzer;
+try {
+    heliusAnalyzer = new HeliusAnalyzer();
+    console.log('✅ HeliusAnalyzer initialized successfully');
+    
+    // Test the connection if API key is available
+    if (!heliusAnalyzer.useFallback) {
+        heliusAnalyzer.testConnection();
+    }
+} catch (error) {
+    console.error('❌ HeliusAnalyzer failed to initialize:', error);
+    // Create a minimal fallback that won't break the app
+    heliusAnalyzer = {
+        analyzeWallet: async function(walletAddress) {
+            console.log('🔄 Using emergency HeliusAnalyzer fallback');
+            const hash = walletAddress.split('').reduce((a, b) => a + b.charCodeAt(0), 0);
+            const random = (hash % 10000) / 10000;
+            return {
+                totalTxs: Math.floor(random * 300) + 50,
+                nftCount: Math.floor(random * 20),
+                memecoinTrades: Math.floor(random * 50),
+                defiCount: Math.floor(random * 30),
+                totalVolume: Math.floor(random * 5000),
+                uniquePrograms: Math.floor(random * 20) + 5,
+                accountAge: Math.floor(random * 365) + 30,
+                dataSource: 'emergency_fallback'
+            };
+        }
+    };
+}
