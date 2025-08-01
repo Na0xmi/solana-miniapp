@@ -214,14 +214,24 @@
         </div>
     </div>
 
-    <!-- Load JavaScript modules in correct order -->
-    <script src="https://unpkg.com/@farcaster/miniapp-sdk@latest/dist/index.js"></script>
-    <script src="js/config.local.js"></script>
-    <script src="js/config.js"></script>
-    <script src="js/personas.js"></script>
-    <script src="js/metaplex-nft.js"></script>
-    <script src="js/helius-analysis.js"></script>
-    <script src="js/wallet.js"></script>
-    <script src="js/app.js"></script>
+    
+
+<!-- Load JavaScript modules in correct order -->
+<script src="https://unpkg.com/@farcaster/miniapp-sdk@latest/dist/index.js"></script>
+
+<!-- Smart loading: local config only for development -->
+<script>
+if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    // Local development - try to load local config
+    document.write('<script src="js/config.local.js" onerror="console.log(\'Local config not found - OK for production\')"><\/script>');
+}
+</script>
+
+<script src="js/config.js"></script>
+<script src="js/personas.js"></script>
+<script src="js/metaplex-nft.js"></script>
+<script src="js/helius-analysis.js"></script>
+<script src="js/wallet.js"></script>
+<script src="js/app.js"></script>
 </body>
 </html>
