@@ -1,4 +1,5 @@
 [build]
+  command = "echo 'const LOCAL_CONFIG = { helius: { apiKey: \"'$HELIUS_API_KEY'\" } }; window.LOCAL_CONFIG = LOCAL_CONFIG;' > js/config.local.js"
   publish = "."
 
 # Headers for security and Mini App compatibility
