@@ -1,5 +1,5 @@
 [build]
-  command = "echo 'const LOCAL_CONFIG = { helius: { apiKey: \"'$HELIUS_API_KEY'\" } }; window.LOCAL_CONFIG = LOCAL_CONFIG;' > js/config.local.js"
+  command = "mkdir -p js && echo 'const LOCAL_CONFIG = { helius: { apiKey: \"'$HELIUS_API_KEY'\" } }; window.LOCAL_CONFIG = LOCAL_CONFIG;' > js/config.local.js"
   publish = "."
 
 # Headers for security and Mini App compatibility
@@ -9,8 +9,14 @@
     X-Frame-Options = "SAMEORIGIN"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    # Allow embedding in Farcaster
     Content-Security-Policy = "frame-ancestors 'self' https://*.farcaster.xyz https://*.warpcast.com https://*.neynar.com"
+
+# JavaScript files - FIXED
+[[headers]]
+  for = "/js/*.js"
+  [headers.values]
+    Content-Type = "application/javascript"
+    Cache-Control = "public, max-age=86400"
 
 # Farcaster manifest with proper headers
 [[headers]]
@@ -27,20 +33,13 @@
     Cache-Control = "public, max-age=31536000"
     Vary = "Accept"
 
-# JavaScript files - FIXED
-[[headers]]
-  for = "/js/*.js"
-  [headers.values]
-    Content-Type = "application/javascript"
-    Cache-Control = "public, max-age=86400"
-
 # CSS files
 [[headers]]
   for = "/css/*"
   [headers.values]
     Cache-Control = "public, max-age=86400"
 
-# Alternative path for Farcaster manifest (some tools look here)
+# Alternative path for Farcaster manifest
 [[redirects]]
   from = "/.well-known/farcaster.json"
   to = "/farcaster.json"
